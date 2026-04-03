@@ -3,6 +3,9 @@
   "version": "0.1.4",
   "description": "Cross-platform launcher for claw release binaries",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "claw": "bin/claw.js"
   },
