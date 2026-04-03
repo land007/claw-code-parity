@@ -142,6 +142,8 @@ jobs:
       contents: write
 
     steps:
+      - uses: actions/checkout@v5
+
       - name: Download packaged artifacts
         uses: actions/download-artifact@v5
         with:
