@@ -59,7 +59,7 @@ jobs:
             binary_name: claw.exe
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set release version
         id: meta
