@@ -89,9 +89,9 @@ jobs:
       - name: Prepare package layout
         shell: bash
         run: |
-          mkdir -p "../dist/${{ steps.meta.outputs.bundle_dir }}"
-          cp "target/${{ matrix.target }}/release/${{ matrix.binary_name }}" "../dist/${{ steps.meta.outputs.bundle_dir }}/${{ matrix.binary_name }}"
-          cat > "../dist/${{ steps.meta.outputs.bundle_dir }}/README.txt" <<EOF
+          mkdir -p "dist/${{ steps.meta.outputs.bundle_dir }}"
+          cp "target/${{ matrix.target }}/release/${{ matrix.binary_name }}" "dist/${{ steps.meta.outputs.bundle_dir }}/${{ matrix.binary_name }}"
+          cat > "dist/${{ steps.meta.outputs.bundle_dir }}/README.txt" <<EOF
           Claw Code binary bundle
 
           Version: ${{ steps.meta.outputs.version }}
@@ -113,21 +113,21 @@ jobs:
         if: matrix.archive_ext == 'tar.gz'
         shell: bash
         run: |
-          mkdir -p ../release-assets
-          tar -C ../dist -czf "../release-assets/${{ steps.meta.outputs.archive_name }}" "${{ steps.meta.outputs.bundle_dir }}"
+          mkdir -p release-assets
+          tar -C dist -czf "release-assets/${{ steps.meta.outputs.archive_name }}" "${{ steps.meta.outputs.bundle_dir }}"
 
       - name: Create zip archive
         if: matrix.archive_ext == 'zip'
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path "../release-assets" | Out-Null
-          Compress-Archive -Path "../dist/${{ steps.meta.outputs.bundle_dir }}" -DestinationPath "../release-assets/${{ steps.meta.outputs.archive_name }}" -Force
+          New-Item -ItemType Directory -Force -Path "release-assets" | Out-Null
+          Compress-Archive -Path "dist/${{ steps.meta.outputs.bundle_dir }}" -DestinationPath "release-assets/${{ steps.meta.outputs.archive_name }}" -Force
 
       - name: Upload packaged artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: release-${{ matrix.asset_suffix }}
-          path: ../release-assets/${{ steps.meta.outputs.archive_name }}
+          path: release-assets/${{ steps.meta.outputs.archive_name }}
           if-no-files-found: error
 
   release:
@@ -143,7 +143,7 @@ jobs:
 
     steps:
       - name: Download packaged artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: release-assets
 
