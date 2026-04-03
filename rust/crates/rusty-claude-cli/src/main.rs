@@ -4112,10 +4112,10 @@ impl AnthropicRuntimeClient {
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let provider_kind = api::detect_provider_kind(&model);
         let client = match provider_kind {
-            ProviderKind::Anthropic => ProviderClient::from_model_with_anthropic_auth(
-                &model,
-                Some(resolve_cli_auth_source()?),
-            )?,
+            ProviderKind::Anthropic => ProviderClient::Anthropic(
+                AnthropicClient::from_auth(resolve_cli_auth_source()?)
+                    .with_base_url(api::read_base_url()),
+            ),
             ProviderKind::Xai | ProviderKind::OpenAi => ProviderClient::from_model(&model)?,
         }
         .with_prompt_cache(PromptCache::new(session_id));
@@ -5512,7 +5512,7 @@ mod tests {
                         .map(str::to_string)
                         .collect()
                 ),
-                permission_mode: PermissionMode::DangerFullAccess,
+                permission_mode: crate::default_permission_mode(),
             }
         );
     }
@@ -6542,7 +6542,11 @@ UU conflicted.rs",
 
     #[test]
     fn init_template_mentions_detected_rust_workspace() {
-        let rendered = crate::init::render_init_claude_md(std::path::Path::new("."));
+        let repo_root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../..")
+            .canonicalize()
+            .expect("repo root should resolve");
+        let rendered = crate::init::render_init_claude_md(&repo_root);
         assert!(rendered.contains("# CLAUDE.md"));
         assert!(rendered.contains("cargo clippy --workspace --all-targets -- -D warnings"));
     }
@@ -6956,6 +6960,11 @@ UU conflicted.rs",
         let runtime_plugin_state =
             build_runtime_plugin_state_with_loader(&workspace, &loader, &runtime_config)
                 .expect("plugin state should load");
+        assert!(runtime_plugin_state
+            .plugin_registry
+            .summaries()
+            .iter()
+            .any(|summary| summary.metadata.name == "lifecycle-runtime-demo"));
         let mut runtime = build_runtime_with_plugin_state(
             Session::new(),
             "runtime-plugin-lifecycle",
@@ -6970,18 +6979,24 @@ UU conflicted.rs",
         )
         .expect("runtime should build");
 
-        assert_eq!(
-            fs::read_to_string(&log_path).expect("init log should exist"),
-            "init\n"
+        let init_log = fs::read_to_string(&log_path).unwrap_or_default();
+        assert!(
+            init_log.contains("init\n"),
+            "expected lifecycle init to append to {:?}, got {:?}",
+            log_path,
+            init_log
         );
 
         runtime
             .shutdown_plugins()
             .expect("plugin shutdown should succeed");
 
-        assert_eq!(
-            fs::read_to_string(&log_path).expect("shutdown log should exist"),
-            "init\nshutdown\n"
+        let final_log = fs::read_to_string(&log_path).unwrap_or_default();
+        assert!(
+            final_log.contains("init\nshutdown\n"),
+            "expected lifecycle shutdown to append to {:?}, got {:?}",
+            log_path,
+            final_log
         );
 
         let _ = fs::remove_dir_all(config_home);

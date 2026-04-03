@@ -293,7 +293,18 @@ fn unshare_user_namespace_works() -> bool {
             return false;
         }
         std::process::Command::new("unshare")
-            .args(["--user", "--map-root-user", "true"])
+            .args([
+                "--user",
+                "--map-root-user",
+                "--mount",
+                "--ipc",
+                "--pid",
+                "--uts",
+                "--fork",
+                "sh",
+                "-lc",
+                "true",
+            ])
             .stdin(std::process::Stdio::null())
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::null())

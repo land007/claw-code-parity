@@ -353,11 +353,26 @@ mod tests {
         fs::write(root.join("rust").join("Cargo.toml"), "[workspace]\n").expect("write cargo");
 
         let report = initialize_repo(&root).expect("init should succeed");
-        let rendered = report.render();
-        assert!(rendered.contains(".claude/         created"));
-        assert!(rendered.contains(".claude.json     created"));
-        assert!(rendered.contains(".gitignore       created"));
-        assert!(rendered.contains("CLAUDE.md        created"));
+        assert!(report
+            .artifacts
+            .iter()
+            .any(|artifact| artifact.name == ".claude/"
+                && artifact.status == super::InitStatus::Created));
+        assert!(report
+            .artifacts
+            .iter()
+            .any(|artifact| artifact.name == ".claude.json"
+                && artifact.status == super::InitStatus::Created));
+        assert!(report
+            .artifacts
+            .iter()
+            .any(|artifact| artifact.name == ".gitignore"
+                && artifact.status == super::InitStatus::Created));
+        assert!(report
+            .artifacts
+            .iter()
+            .any(|artifact| artifact.name == "CLAUDE.md"
+                && artifact.status == super::InitStatus::Created));
         assert!(root.join(".claude").is_dir());
         assert!(root.join(".claude.json").is_file());
         assert!(root.join("CLAUDE.md").is_file());
