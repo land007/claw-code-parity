@@ -111,6 +111,29 @@ The new Python `src/` tree currently provides:
 
 ## Quickstart
 
+### Install prebuilt CLI
+
+Install the latest release binary for Linux or macOS:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/land007/claw-code-parity/main/install.sh | bash
+```
+
+Run it after install:
+
+```bash
+claw --help
+```
+
+### Run via npm / npx
+
+A minimal npm launcher package is included under `npm/` for publishing as an `npx` entrypoint.
+After publishing, usage looks like:
+
+```bash
+npx @land007/claw --help
+```
+
 Render the Python porting summary:
 
 ```bash

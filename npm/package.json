@@ -1,0 +1,19 @@
+{
+  "name": "@land007/claw",
+  "version": "0.1.4",
+  "description": "Cross-platform launcher for claw release binaries",
+  "license": "MIT",
+  "bin": {
+    "claw": "bin/claw.js"
+  },
+  "files": [
+    "bin",
+    "lib"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "tar": "^7.4.3"
+  }
+}
